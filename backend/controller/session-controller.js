@@ -6,12 +6,11 @@ import Session from "../models/session-model.js";
 // @access  Private
 export const createSession = async (req, res) => {
   try {
-    console.log(1);
-    const { role, experience, topicsToFocus, description, questions } =
-      req.body;
-    const userId = req.user._id; // Assuming you have a middleware setting req.user
+    // We extract questions here to avoid the "ReferenceError"
+    const { role, experience, topicsToFocus, description, questions } = req.body;
+    const userId = req.user._id;
 
-    // Create the session
+    // 1. Create the session
     const session = await Session.create({
       user: userId,
       role,
@@ -20,33 +19,27 @@ export const createSession = async (req, res) => {
       description,
     });
 
-    // Create questions and collect their IDs
-    const questionDocs = await Promise.all(
-      questions.map(async (q) => {
-        const question = await Question.create({
-          session: session._id,
-          question: q.question,
-          answer: q.answer || "",
-          note: q.note || "",
-          isPinned: q.isPinned || false,
-        });
-        return question._id;
-      }),
-    );
+    // 2. Create questions and collect their IDs
+    let questionDocs = [];
+    if (questions && Array.isArray(questions)) {
+      questionDocs = await Promise.all(
+        questions.map(async (q) => {
+          const question = await Question.create({
+            session: session._id,
+            question: q.question,
+            answer: q.answer || "",
+            note: q.note || "",
+            isPinned: q.isPinned || false,
+          });
+          return question._id;
+        })
+      );
+    }
 
-    // Update session with question IDs
+    // 3. Update session with question IDs
     session.questions = questionDocs;
     await session.save();
 
-    // Return the populated session
-    // const populatedSession = await Session.findById(session._id).populate(
-    //   "questions",
-    // );
-
-    // res.status(201).json({
-    //   success: true,
-    //   data: populatedSession,
-    // });
     res.status(201).json({
       success: true,
       session,
@@ -59,7 +52,7 @@ export const createSession = async (req, res) => {
       error: error.message,
     });
   }
-};
+}; // Ensure this brace is closed!
 
 // @desc    Get all sessions for the logged-in user
 // @route   GET /api/sessions/my-sessions
@@ -114,4 +107,3 @@ export const getSessionById = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
-
