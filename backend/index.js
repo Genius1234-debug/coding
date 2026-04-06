@@ -11,27 +11,35 @@ connectDB();
 
 const app = express();
 
-// ✅ FIXED CORS
+// ✅ CORS (FINAL & SIMPLE)
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5175",
+  "https://coding-esys.vercel.app"
+];
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:5175",
-      "https://coding-esys.vercel.app"
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: allowedOrigins,
     credentials: true
   })
 );
 
+// ✅ BODY PARSER
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// ✅ ROUTES
 app.use("/api/ai", aiRoutes);
 app.use("/api/auth", userRoutes);
 app.use("/api/sessions", sessionRoutes);
 
-// ✅ FIXED PORT
+// ✅ TEST ROUTE
+app.get("/", (req, res) => {
+  res.send("Backend is running 🚀");
+});
+
+// ✅ PORT
 const PORT = process.env.PORT || 9001;
 
 app.listen(PORT, () => {
