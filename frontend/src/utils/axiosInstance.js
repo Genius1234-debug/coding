@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: https://coding-4-3jb8.onrender.com|| "http://localhost:9001",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:9001",
   headers: {
     "Content-Type": "application/json",
   },
