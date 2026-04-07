@@ -13,8 +13,9 @@ const app = express();
 
 // ✅ CORS (FINAL & SIMPLE)
 const allowedOrigins = [
-  "https://localhost:5173",
-  "https://localhost:5175",
+  "https://coding-f27a.vercel.app",
+ 
+  
  
 ];
 
